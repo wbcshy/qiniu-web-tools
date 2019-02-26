@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试表单上传</title>
+</head>
+<body>
+
+<form method="post" action="https://upload-z2.qiniup.com/"
+      enctype="multipart/form-data">
+    <input name="key" type="hidden" value="test/qiniu.png">
+    <input name="x:<custom_name>" type="hidden" value="<custom_value>">
+    <input name="token" type="hidden" value="CvC8byzccEXvJfif1OFBJqsKDORzJKFtHx0YEaaR:BG3CaYq11JaazhkxHtRioKIAHNk=:eyJzY29wZSI6InRlc3RyZXBvcnQ6dGVzdC9xaW5pdS5wbmciLCJkZWFkbGluZSI6MTU0ODY3Mzg1NH0=">
+   <!-- <input name="crc32" type="hidden" />-->
+    <input name="accept" type="hidden" />
+    <input name="file" type="file" />
+    <input type="submit" value="上传文件" />
+</form>
+
+</body>
+</html>

@@ -35,11 +35,11 @@
             <scope>test</scope>
         </dependency>
         <!-- 七牛sdk相关 -->
-        <dependency>
+       <!--<dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
             <version>[7.2.18, 7.2.99]</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>happy-dns-java</artifactId>
