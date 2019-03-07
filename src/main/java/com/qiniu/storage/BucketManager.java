@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.HttpManager;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
@@ -16,7 +17,7 @@ import java.util.*;
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
  * 参考文档：<a href="http://developer.qiniu.com/kodo/api/rs">资源管理</a>
  */
-public final class BucketManager {
+public class BucketManager extends HttpManager {
 
     /**
      * Auth 对象
@@ -43,12 +44,14 @@ public final class BucketManager {
      * @param cfg  Configuration对象
      */
     public BucketManager(Auth auth, Configuration cfg) {
+        super(auth, cfg);
         this.auth = auth;
         this.configuration = cfg.clone();
         client = new Client(this.configuration);
     }
 
     public BucketManager(Auth auth, Client client) {
+        super(auth, client);
         this.auth = auth;
         this.client = client;
     }
@@ -87,14 +90,14 @@ public final class BucketManager {
      *
      * @return 空间名称列表
      */
-    public String[] buckets() throws QiniuException {
+    public List<String> buckets() throws QiniuException {
         // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
         String url = String.format("%s/buckets", configuration.rsHost());
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        String[] buckets = res.jsonToObject(String[].class);
+        List<String> buckets = res.jsonToObject(List.class);
         res.close();
         return buckets;
     }
@@ -395,13 +398,14 @@ public final class BucketManager {
      * @param toFileKey   目的文件名称
      * @throws QiniuException
      */
-    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+    public Response copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
         Response res = copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
         res.close();
+        return res;
     }
 
     /**
@@ -593,6 +597,8 @@ public final class BucketManager {
         return pubPost(path);
     }
 
+
+
     /**
      * 设置文件的存活时间
      *
@@ -634,47 +640,7 @@ public final class BucketManager {
         res.close();
     }
 
-    /*
-     * 相关请求的方法列表
-     * */
-    private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
-        check(bucket);
-        String url = configuration.rsHost(auth.accessKey, bucket) + path;
-        return post(url, body);
-    }
 
-    private Response rsGet(String bucket, String path) throws QiniuException {
-        check(bucket);
-        String url = configuration.rsHost(auth.accessKey, bucket) + path;
-        return get(url);
-    }
-
-    private Response ioPost(String bucket, String path) throws QiniuException {
-        check(bucket);
-        String url = configuration.ioHost(auth.accessKey, bucket) + path;
-        return post(url, null);
-    }
-
-    private Response pubPost(String path) throws QiniuException {
-        String url = "http://pu.qbox.me:10200" + path;
-        return post(url, null);
-    }
-
-    private Response get(String url) throws QiniuException {
-        StringMap headers = auth.authorization(url);
-        return client.get(url, headers);
-    }
-
-    private Response post(String url, byte[] body) throws QiniuException {
-        StringMap headers = auth.authorization(url, body, Client.FormMime);
-        return client.post(url, body, headers, Client.FormMime);
-    }
-
-    private void check(String bucket) throws QiniuException {
-        if (StringUtils.isNullOrEmpty(bucket)) {
-            throw new QiniuException(Response.createError(null, null, 0, "未指定操作的空间或操作体为空"));
-        }
-    }
 
     /**
      * 批量文件管理请求

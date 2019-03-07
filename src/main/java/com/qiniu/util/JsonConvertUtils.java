@@ -2,7 +2,10 @@ package com.qiniu.util;
 
 import com.google.gson.*;
 
-public final class JsonConvertUtils {
+/**
+ * Json 字符串的转换工具
+ */
+public class JsonConvertUtils {
 
     public static <T> T fromJson(String jsonData, Class<T> clazz) {
         Gson gson = new Gson();

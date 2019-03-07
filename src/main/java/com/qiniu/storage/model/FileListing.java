@@ -5,7 +5,7 @@ import com.qiniu.util.StringUtils;
 /**
  * 该类封装了文件列举请求回复
  */
-public final class FileListing {
+public class FileListing {
     /**
      * 文件对象列表
      */
@@ -25,4 +25,5 @@ public final class FileListing {
     public boolean isEOF() {
         return StringUtils.isNullOrEmpty(marker);
     }
+
 }

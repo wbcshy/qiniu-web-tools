@@ -4,7 +4,7 @@ package com.qiniu.storage.model;
  * list 接口的回复文件对象信息
  * 参考文档：<a href="https://developer.qiniu.com/kodo/api/list">资源列举</a>
  */
-public final class FileInfo {
+public class FileInfo {
     /**
      * 文件名
      */

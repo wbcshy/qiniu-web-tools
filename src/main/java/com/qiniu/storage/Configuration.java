@@ -10,7 +10,7 @@ import com.qiniu.http.ProxyConfiguration;
 /**
  * 该类封装了SDK相关配置参数
  */
-public final class Configuration implements Cloneable {
+public class Configuration implements Cloneable {
 
     /**
      * 使用的Zone
