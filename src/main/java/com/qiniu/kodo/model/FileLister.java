@@ -28,8 +28,10 @@ public class FileLister implements Iterator<List<FileInfo>> {
 
 
     private KodoManager kodoManager;
-    private String bucket;
+    private String bucket;   //目标空间
     private String prefix;   //资源前缀
+    private String mimeType;   //资源类型
+    private int[] fsize;   //资源大小区间  [a]:表示一个读固定文件大小值  [a,b]:表示文件大小范围值
     private String delimter;   //仿照目录集做分割
     private String marker;   //记录标识
     private String endKeyPrefix;   //表示列举的结束表识
@@ -37,11 +39,13 @@ public class FileLister implements Iterator<List<FileInfo>> {
     private List<FileInfo> fileInfoList;  //资源信息
     public QiniuException exception;
 
-
-    public FileLister(KodoManager kodoManager, String bucket, String prefix, String marker, String endKeyPrefix, String delimter, int limit) throws QiniuException {
+    public FileLister(KodoManager kodoManager, String bucket, String prefix, String mimeType, int[] fsize, String marker,
+                      String endKeyPrefix, String delimter, int limit) throws QiniuException {
         this.kodoManager = kodoManager;
         this.bucket = bucket;
         this.prefix = prefix;
+        this.fsize = fsize;
+        this.mimeType = mimeType;
         this.marker = marker;
         this.endKeyPrefix = endKeyPrefix == null ? "" : endKeyPrefix;
         this.delimter = delimter;
@@ -102,9 +106,25 @@ public class FileLister implements Iterator<List<FileInfo>> {
             return new ArrayList<>();
         //获取FileInfo的List，过滤到不为空的列举文件信息
         List<FileInfo> fileInfoList = fileListLines.parallelStream()
-                .map(fileListLine -> fileListLine.fileInfo)  //流转换
+                .map(fileListLint -> fileListLint.fileInfo)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        //文件类型的筛选列举
+        if (mimeType != null && !"".equals(mimeType)) {
+            fileInfoList = fileInfoList.stream().filter(fileInfo -> fileInfo.mimeType.equals(mimeType)).collect(Collectors.toList());
+        }
+        //根据文件大小来筛选列举
+        if (fsize != null && fsize.length > 0 && fsize[1] != 0) {
+            fileInfoList = fileInfoList.stream().filter(fileInfo -> {
+                boolean result = false;
+                if (fsize.length == 1)
+                    result = fileInfo.fsize == fsize[0] ? true : false;
+                if (fsize.length == 2)
+                    result = (fileInfo.fsize >= fsize[0] && fileInfo.fsize <= fsize[1]) ? true : false;
+                return result;
+            }).collect(Collectors.toList());
+        }
+
         Optional<FileListLine> lastFileListLine = fileListLines.parallelStream().max(FileListLine::compareTo);
         this.marker = lastFileListLine.map(fileListLine -> fileListLine.marker).orElse("");
         return fileInfoList;

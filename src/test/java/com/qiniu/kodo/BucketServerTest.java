@@ -4,6 +4,7 @@ import com.qiniu.common.BasicInfo;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.kodo.qoss.ListBucket;
+import com.qiniu.kodo.qoss.ListBucketInfo;
 import com.qiniu.kodo.service.BucketServer;
 import com.qiniu.kodo.service.impl.BucketServerImpl;
 import com.qiniu.storage.Configuration;
@@ -98,12 +99,24 @@ public class BucketServerTest {
         String end = ""; //列举的结束标识
         int listNum = 10000;  //每次列举文件个数
         List<String> prefixes = Arrays.asList("urm","ro");  //多前缀指定列表
-        ListBucket listBucket = new ListBucket(kodoManager, bucket, marker, end, listNum, prefixes);
+        List<String> mimeTypes = Arrays.asList("image/jpeg");  //多条件文件类型
+        List<int[]> fsizes = Arrays.asList(new int[]{0, 1024 * 3}, new int[]{1024 * 5, 1024 * 6});
+//        ListBucket listBucket = new ListBucket(kodoManager, bucket, marker, end, listNum, prefixes);
+        ListBucket listBucket = new ListBucket(kodoManager, bucket, marker, end, listNum, prefixes, mimeTypes, fsizes);
         List<FileInfo> fileInfoList = bucketServer.listBucketFile(basicInfo, listBucket, 4);
         for (FileInfo fileInfo: fileInfoList) {
-            System.out.println(fileInfo.key);
+            System.out.println(fileInfo.key + "----------" + fileInfo.mimeType + "---------" + fileInfo.fsize);
         }
     }
 
+    /**
+     * 空间信息获取测试
+     */
+    @Test
+    public void listBucketInfoTest() {
+        List<String> regions = Arrays.asList("z1");
+        ListBucketInfo listBucketInfo = new ListBucketInfo(kodoManager, regions, null, null, null);
+
+    }
 
 }

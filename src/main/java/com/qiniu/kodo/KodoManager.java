@@ -72,6 +72,34 @@ public class KodoManager extends BucketManager {
         return response;
     }
 
+    /**
+     * 获取指定区域的存储空间信息，包含文件等信息
+     * @param region
+     * @param global
+     * @param line
+     * @param share
+     * @return
+     * @throws QiniuException
+     */
+    public Response getBucketListByRegion(String region, String global, String line, String share) throws QiniuException {
+        String url = String.format("%s/v2/buckets?region=%s", configuration.rsHost(), region);
+        if (global != null) {
+            url = String.format("%s&global=%s", url, global);
+        }
+        if (line != null) {
+            url = String.format("%s&line=%s", url, line);
+        }
+        if (share != null) {
+            url = String.format("%s&share=%s", url, share);
+        }
+        Response response = this.post(url, null);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        response.close();
+        return response;
+    }
+
 
 
 

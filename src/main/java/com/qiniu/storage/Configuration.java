@@ -75,6 +75,7 @@ public class Configuration implements Cloneable {
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
     public static String defaultUcHost = "uc.qbox.me";
+    public static String defaultRsQboxHost = "rs.qbox.me";
 
     public Configuration() {
 
@@ -137,6 +138,14 @@ public class Configuration implements Cloneable {
             scheme = "https://";
         }
         return scheme + defaultRsHost;
+    }
+
+    public String rsQBoxHost() {
+        String scheme = "http://";
+        if (useHttpsDomains) {
+            scheme = "https://";
+        }
+        return scheme + defaultRsQboxHost;
     }
 
     public String apiHost() {
